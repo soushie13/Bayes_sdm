@@ -1,0 +1,55 @@
+
+Iterations = 5001:9996
+Thinning interval = 5 
+Number of chains = 2 
+Sample size per chain = 1000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                     Mean       SD Naive SE Time-series SE
+beta.(Intercept)  -5.0585  0.38275 0.008558       0.035358
+beta.layer.1       2.8126  0.63396 0.014176       0.091549
+beta.layer.2      -1.2756  0.43896 0.009815       0.044785
+beta.layer         1.5379  0.28266 0.006321       0.020456
+beta.lc           -0.4537  0.23741 0.005309       0.016624
+beta.alt           1.5273  0.42220 0.009441       0.043218
+beta.lc_modi       1.2101  0.24662 0.005515       0.019175
+beta.pop_den       1.4288  0.52485 0.011736       0.028831
+Vrho               9.9117  0.06608 0.001478       0.009067
+Deviance         268.5234 18.59034 0.415693       1.368309
+
+2. Quantiles for each variable:
+
+                     2.5%      25%      50%      75%      97.5%
+beta.(Intercept)  -5.9281  -5.2883  -5.0267  -4.8015  -4.377118
+beta.layer.1       1.6322   2.3601   2.8213   3.2370   4.093664
+beta.layer.2      -2.1452  -1.5521  -1.2730  -0.9835  -0.416579
+beta.layer         0.9906   1.3403   1.5413   1.7226   2.083984
+beta.lc           -0.9343  -0.6152  -0.4509  -0.2934  -0.008502
+beta.alt           0.7510   1.2272   1.5100   1.8304   2.359139
+beta.lc_modi       0.7452   1.0401   1.2039   1.3657   1.720882
+beta.pop_den       0.4723   1.0645   1.3920   1.7538   2.541129
+Vrho               9.7524   9.8724   9.9292   9.9623   9.995419
+Deviance         234.5247 255.2666 268.5496 280.7599 307.406395
+
+
+ 
+ 
+Potential scale reduction factors:
+
+                 Point est. Upper C.I.
+beta.(Intercept)       1.08       1.31
+beta.layer.1           1.05       1.13
+beta.layer.2           1.10       1.38
+beta.layer             1.04       1.16
+beta.lc                1.01       1.03
+beta.alt               1.04       1.17
+beta.lc_modi           1.02       1.10
+beta.pop_den           1.03       1.12
+Vrho                   1.03       1.15
+Deviance               1.02       1.08
+
+Multivariate psrf
+
+1.41

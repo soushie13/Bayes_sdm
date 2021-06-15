@@ -1,0 +1,55 @@
+
+Iterations = 5001:9996
+Thinning interval = 5 
+Number of chains = 2 
+Sample size per chain = 1000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                      Mean       SD Naive SE Time-series SE
+beta.(Intercept)  -7.42157  0.91838 0.020536       0.148278
+beta.layer.1      -2.72411  1.60108 0.035801       0.270781
+beta.layer.2       1.65097  1.30463 0.029172       0.215200
+beta.layer         2.23412  0.39907 0.008923       0.046655
+beta.lc            0.21787  0.28018 0.006265       0.016682
+beta.alt          -7.12888  1.92968 0.043149       0.308019
+beta.lc_modi       2.01717  0.38696 0.008653       0.026624
+beta.pop_den       0.00701  0.15813 0.003536       0.007293
+Vrho               9.87936  0.05526 0.001236       0.008422
+Deviance         113.44166 12.32776 0.275657       0.945002
+
+2. Quantiles for each variable:
+
+                     2.5%       25%       50%      75%    97.5%
+beta.(Intercept)  -9.4726  -8.00068  -7.29651  -6.8059  -5.8840
+beta.layer.1      -5.7679  -3.82144  -2.80242  -1.6734   0.6095
+beta.layer.2      -1.1103   0.82618   1.65468   2.5389   4.1226
+beta.layer         1.4294   1.96110   2.23344   2.5053   3.0142
+beta.lc           -0.3397   0.03295   0.21572   0.4036   0.7808
+beta.alt         -11.3713  -8.22921  -7.05425  -5.7307  -3.9039
+beta.lc_modi       1.2865   1.75444   2.03407   2.2744   2.7566
+beta.pop_den      -0.3128  -0.09765   0.01136   0.1141   0.2983
+Vrho               9.7971   9.83454   9.86940   9.9186   9.9928
+Deviance          90.6080 104.71929 112.90177 122.1287 138.1282
+
+
+ 
+ 
+Potential scale reduction factors:
+
+                 Point est. Upper C.I.
+beta.(Intercept)       1.13       1.46
+beta.layer.1           1.08       1.31
+beta.layer.2           1.11       1.42
+beta.layer             1.00       1.01
+beta.lc                1.06       1.25
+beta.alt               1.10       1.36
+beta.lc_modi           1.33       2.03
+beta.pop_den           1.02       1.10
+Vrho                   1.10       1.37
+Deviance               1.09       1.33
+
+Multivariate psrf
+
+1.57

@@ -1,0 +1,6 @@
+          Model  Deviance Perc
+1          NULL 1891.4073    0
+2           env  764.3752   69
+3      binomial  839.2431   65
+4 binomial.icar  268.5234  100
+5      ZIB.icar  267.1366  100

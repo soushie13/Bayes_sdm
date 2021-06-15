@@ -1,0 +1,52 @@
+
+Iterations = 5001:9996
+Thinning interval = 5 
+Number of chains = 2 
+Sample size per chain = 1000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                     Mean     SD Naive SE Time-series SE
+beta.(Intercept)  -2.4360 0.2005 0.004483       0.014305
+beta.layer.1       3.0160 0.3328 0.007443       0.027527
+beta.layer.2      -1.4385 0.2119 0.004739       0.010294
+beta.layer         1.4636 0.1627 0.003638       0.007255
+beta.lc           -0.5116 0.1397 0.003124       0.005707
+beta.alt           1.8564 0.2289 0.005119       0.016787
+beta.lc_modi       0.9691 0.1217 0.002721       0.004821
+beta.pop_den       1.4301 0.3510 0.007849       0.011363
+Deviance         839.2431 3.9822 0.089046       0.202869
+
+2. Quantiles for each variable:
+
+                     2.5%      25%      50%      75%    97.5%
+beta.(Intercept)  -2.8509  -2.5694  -2.4249  -2.2968  -2.0594
+beta.layer.1       2.4301   2.7740   3.0153   3.2328   3.6853
+beta.layer.2      -1.8613  -1.5798  -1.4316  -1.2940  -1.0319
+beta.layer         1.1559   1.3522   1.4624   1.5733   1.7776
+beta.lc           -0.7829  -0.6050  -0.5106  -0.4143  -0.2414
+beta.alt           1.4303   1.7023   1.8535   2.0087   2.3234
+beta.lc_modi       0.7307   0.8872   0.9675   1.0515   1.2153
+beta.pop_den       0.7658   1.1862   1.4161   1.6625   2.1407
+Deviance         833.5560 836.3873 838.5348 841.3827 848.7955
+
+
+ 
+ 
+Potential scale reduction factors:
+
+                 Point est. Upper C.I.
+beta.(Intercept)       1.01       1.04
+beta.layer.1           1.02       1.09
+beta.layer.2           1.00       1.01
+beta.layer             1.00       1.00
+beta.lc                1.00       1.00
+beta.alt               1.01       1.06
+beta.lc_modi           1.00       1.01
+beta.pop_den           1.00       1.00
+Deviance               1.01       1.02
+
+Multivariate psrf
+
+1.02

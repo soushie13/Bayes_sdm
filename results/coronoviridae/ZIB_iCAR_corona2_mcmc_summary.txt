@@ -1,0 +1,82 @@
+
+Iterations = 10001:19991
+Thinning interval = 10 
+Number of chains = 2 
+Sample size per chain = 1000 
+
+1. Empirical mean and standard deviation for each variable,
+   plus standard error of the mean:
+
+                     Mean        SD  Naive SE
+beta.(Intercept)   -6.257   0.62276  0.013925
+beta.layer.1        4.312   2.63169  0.058846
+beta.layer.2       -0.990   2.19117  0.048996
+beta.layer         -1.849   0.72472  0.016205
+beta.lc            -0.262   0.44891  0.010038
+beta.alt            2.206   0.65840  0.014722
+beta.lc_modi        2.522   0.56494  0.012632
+beta.pop_den        3.755   0.83355  0.018639
+gamma.(Intercept) 776.973 587.09236 13.127784
+Vrho                9.919   0.04903  0.001096
+Deviance           59.005  10.23167  0.228787
+                  Time-series SE
+beta.(Intercept)        0.044082
+beta.layer.1            0.532657
+beta.layer.2            0.382394
+beta.layer              0.093402
+beta.lc                 0.023349
+beta.alt                0.099156
+beta.lc_modi            0.030517
+beta.pop_den            0.059244
+gamma.(Intercept)      14.200550
+Vrho                    0.006272
+Deviance                0.721394
+
+2. Quantiles for each variable:
+
+                     2.5%      25%      50%        75%
+beta.(Intercept)  -7.5764  -6.6587  -6.2157   -5.81767
+beta.layer.1      -1.0942   2.7539   4.3463    5.92397
+beta.layer.2      -5.0734  -2.4187  -0.9744    0.33959
+beta.layer        -3.2070  -2.3339  -1.8875   -1.36643
+beta.lc           -1.1423  -0.5646  -0.2654    0.02459
+beta.alt           0.9472   1.7687   2.2031    2.63256
+beta.lc_modi       1.4749   2.1512   2.5048    2.90040
+beta.pop_den       2.1531   3.1863   3.7472    4.30956
+gamma.(Intercept) 38.1536 320.4527 639.2747 1123.56527
+Vrho               9.8351   9.8755   9.9217    9.96113
+Deviance          40.7212  51.9276  58.3373   65.39818
+                      97.5%
+beta.(Intercept)    -5.1221
+beta.layer.1         9.3579
+beta.layer.2         3.5601
+beta.layer          -0.3798
+beta.lc              0.6421
+beta.alt             3.5145
+beta.lc_modi         3.6880
+beta.pop_den         5.4344
+gamma.(Intercept) 2115.2218
+Vrho                 9.9968
+Deviance            81.1050
+
+
+ 
+ 
+Potential scale reduction factors:
+
+                  Point est. Upper C.I.
+beta.(Intercept)        1.03       1.11
+beta.layer.1            1.05       1.05
+beta.layer.2            1.05       1.07
+beta.layer              1.02       1.10
+beta.lc                 1.00       1.00
+beta.alt                1.01       1.02
+beta.lc_modi            1.03       1.15
+beta.pop_den            1.01       1.03
+gamma.(Intercept)       1.00       1.00
+Vrho                    1.00       1.02
+Deviance                1.00       1.00
+
+Multivariate psrf
+
+1.37
