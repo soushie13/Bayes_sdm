@@ -1,0 +1,78 @@
+Disease,Country,City,Latitude,Longitude
+Filoviridae,,,,
+MVD,Angola,Uige,-7.5749,15.0678
+MVD,Angola,Luanda,-8.83682,13.23432
+MVD,Angola,Zaire,-6.2666656,14.2333324
+MVD,Angola,Malange,-9.54015,16.34096
+MVD,Angola,Cuangza Norte,-9.0166666,15.0666664
+MVD,Angola,Cuangza Sul,-10.6333308,14.499998
+MVD,Angola,Cabina,-5.55,12.2
+MVD,Uganda,Kamwenge,0.1866,30.45393
+MVD,Uganda,Kabale,-1.24857,29.98993
+MVD,Uganda,Kampala,0.31628,32.58219
+MVD,Uganda,Ibanda,-0.118666192,30.499998
+MVD,Uganda,Mbarara,-0.60467,30.64851
+MVD,Uganda,Kabarole,0.5999976,30.2999988
+MVD,Uganda,Kween,1.416665,34.5166646
+MVD,Kenya,Kitum Cave ,1.032431,34.758091
+MVD,Kenya,Kitum Cave ,1.032431,34.758091
+MVD,Democratic Republic of Congo,Durba,3.117719,29.59375
+EVD,Uganda,Gulu municipality ,2.8599,32.2801
+EVD,Gabon,"Medemba village, La Zadie district",0.8439,14.0704
+EVD,Republic of Congo,Mbomo,-2.353,13.621
+EVD,South Sudan,Yambio,4.5721,28.3955
+EVD,Republic of Congo,Etoumbi,0.01667,14.8999
+EVD,Democratic Republic of Congo,Mweka,-4.85187,21.5595
+EVD,Democratic Republic of Congo,Luebo,-5.35218,21.42192
+EVD,Uganda,Bundibugyo,0.71117,30.06469
+EVD,Uganda,"Nakisamata village, Luwero District",0.6444,32.7286
+EVD,Uganda,Kibaale,0.9833,31.0833
+EVD,Democratic Republic of Congo,Isiro,2.8666,27.6667
+EVD,Uganda,Luwero,0.8492,32.4731
+EVD,Democratic Republic of Congo,"Inkanamongo village, near Boende ",-0.2816,20.8805
+EVD,Guinea ,"Meliandou, Gueckedou District",8.6167,-10.0611
+EVD,Democratic Republic of Congo,Likati,2.8833,24.05
+EVD,Democratic Republic of Congo,Bikoro,-0.75,18.116667
+EVD,Democratic Republic of Congo,Mangina,0.604421,29.308032
+EVD,Democratic Republic of Congo,Yambuku village,2.824575,22.225269
+EVD,South Sudan,Nzara,4.644438,28.253659
+EVD,Democratic Republic of Congo,Tandala,2.972508,19.350765
+EVD,South Sudan,Nzara,4.644438,28.253659
+EVD,Côte d'Ivoire,Tai forest,5.66869,-6.961346
+EVD,Democratic Republic of Congo,Kitwat,-5.078003,18.833656
+EVD,Gabon,Booue,-0.09201,11.948533
+EVD,Gabon,Makokou,0.560813,12.85041
+EVD,Gabon,Mayebout,1.167519,13.16696
+EVD,Democratic Republic of Congo,Mabalako,0.458454,29.206684
+EVD,Democratic Republic of Congo,Mbandako,0.033276,18.269525
+EVD,Guinea ,N'zerekore,7.747179,-8.821956
+EVD,Democratic Republic of Congo,Butembo,0.136245,29.303225
+,,,,
+Disease,Country,City,Latitude,Longitude
+Coronoviridae,,,,
+MERS,Saudi Arabia,Jeddah,21.54238,39.19797
+SARS,China,Shunde district,22.7685,113.1951
+MERS,Jordan,Zarqa,32.078306,36.104979
+MERS,Saudi Arabia,Riyadh,24.848828,46.80305
+unkown,China,Mojiang,23.411947,101.548302
+Henipavirus ,,,,
+Nipah,Bangladesh,Faridpur district,23.5705,89.8618
+Nipah,India,Kozhikode,11.25,75.77
+Nipah,Bangladesh,Meherpur district,23.7685,88.6608
+Nipah,Bangladesh,Rajbari,23.7649,89.6505
+Nipah,Bangladesh,Manikganj,23.8667,89.95
+Nipah,Bangladesh,Faridpur district,23.5705,89.8618
+Nipah,Bangladesh,Khulna,22.8768,89.5114
+Nipah,Bangladesh,Naogaon,24.8025,89.949
+Nipah,Bangladesh,Tangali,24.2482,89.9196
+Nipah,Bangladesh,Thakurgaon,26.0266,88.4558
+Nipah,Bangladesh,Kushtia,23.901,89.1324
+Nipah,Bangladesh,Lalmonirhat,25.9182,89.4581
+Nipah,India,Ernakulam,9.968685,76.339139
+Nipah,Malaysia,Ipoh,4.627687,101.14061
+Nipah,India,Silugiri,26.675593,88.424245
+Hendra ,Australia,hendra,-27.422659,153.069054
+Hendra ,Australia,Mackay,-21.14598,149.180908
+Hendra ,Australia,Carins,-16.91005,145.722263
+Hendra ,Australia,Redlands,-27.623267,153.265605
+Hendra ,Australia,Cawarral,-23.256967,150.659418

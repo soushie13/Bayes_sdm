@@ -9,37 +9,86 @@ library(coda)
 library(doParallel)
 library(knitr)
 library(markdown)
+library(raster)
+library(rgeos)
 library(rgdal)
-ncores=2  # number of processor cores you would like to use
-registerDoParallel(ncores)
-coordinates(obs.data)=c("x","y")
-projection(pa_mvd)="+proj=longlat +datum=WGS84 +ellps=WGS84"
-pa@data[,c("x","y")]=coordinates(pa)  
-bg <- map_data("world",
-                  xlim=c(e@xmin,e@xmax),
-                  ylim=c(e@ymin,e@ymax))
-ggcoast=geom_path(data=bg,
-                  aes(x=long,y=lat,group = group),lwd=.1)
-plot(bg)
-ggplot(pa@data,aes(y=y,x=x))+
-  ggcoast+ 
-  geom_point(data=filter(pa@data,pb==0),
-             aes(x=x,y=y),pch=1,
-             col="black",cex=.8,lwd=2,alpha=.3)+
-  geom_point(data=filter(pa@data,pb==1),
-             aes(x=x,y=y),pch=3,
-             col="red",cex=2,lwd=3,alpha=1)+
-  ylab("Latitude")+xlab("Longitude")+
-  coord_equal()+
-  xlim(c(min(pa$x),max(pa$x)))+
-  ylim(c(min(pa$y),max(pa$y)))
+## open xx occurrence data file##
+getwd()
+setwd("C:/")
+dat <- read.csv(file = "xx.csv", header = TRUE)
+obs.data <- dat[, c("x", "y")]
+plot(obs.data)
 
-## set plotting limits using expert range above
+##create the spatial extents from the reservoir extents for xx##
+data(wrld_simpl)
+res<- readOGR("REServoir.shp")
+e <- extent(res)
+rgeos::set_RGEOS_CheckValidity(2L)
+res <- crop(wrld_simpl, e)
+## add spatial buffers to the occurance data###
+x1 = circles(obs.data, d=10000, lonlat=T)
+x2 = circles(obs.data, d=50000, lonlat=T)
+x3 = circles(obs.data, d=100000, lonlat=T)
 
-gx=xlim(extent(bioclim.data)@xmin,extent(bioclim.data)@xmax)
-gy=ylim(extent(bioclim.data)@ymin,extent(bioclim.data)@ymax)
-plot(bioclim.data$lc_modi)
-env=stack(bioclim.data)
+x5 <- polygons(x1)
+x10 <- polygons(x2)
+x15 <- polygons(x3)
+
+##generation of presence points at spatial buffer of 10km##
+p = spsample(x5, 500, type='random', iter=1000)
+plot(p)
+
+##generation of pseudo absence points at spatial buffer of distribution of the reservoir##
+
+# Randomly sample points (same number as our observed points)
+
+background <- spsample(res,n= 1000,"random", iter= 5000) 
+plot(background)
+
+##climatic and elevation covariates##
+tmin <- getData(name = "worldclim",var = "tmin", res = 2.5, path = "tmin/")
+tmin_m <- mean(tmin)
+tmax <- getData(name = "worldclim",var = "tmax", res = 2.5, path = "tmax/")
+tmax_m <- mean(tmax)
+ppt <- getData(name = "worldclim",var = "prec", res = 2.5, path = "ppt/")
+ppt_m <- mean(ppt)
+alt <- getData(name = "worldclim",var = "alt", res = 2.5, path = "")
+## land and population raster
+lc_raster <- raster("lc.tif")
+topo_raster <- raster("topo.tif")
+lf_raster <- raster("lc_modi.tif")
+pop_raster <-raster("pop_den.tif")
+
+### crop environmental predictors to the extent
+lc <- crop(lc_raster, e) 
+alt_e <- crop(alt, e) 
+lf <- crop(lf_raster, e) 
+pop <- crop(pop_raster, e)
+tmin <- crop(tmin_m, e)
+tmax <- crop(tmax_m,e)
+ppt <- crop(ppt_m,e)
+clim1 <- stack(tmin,tmax)
+clim2 <- addLayer(clim1, ppt)
+clim <- addLayer(clim2,alt_e)
+
+r12_lc<- resample(lc, clim,method= 'bilinear')
+r12 <- addLayer(clim, lc)
+r12_pop <- resample(pop, r12,method= 'bilinear')
+r123 <- addLayer(r12, r12_pop)
+r123_lf <- resample(lf, r123,method= 'bilinear')
+bioclim.data <- addLayer(r123, r123_lf)
+res(bioclim.data)
+plot(bioclim.data)
+
+#extract data
+presence = p@coords
+presvals <- extract(bioclim.data, presence, cellnumber=TRUE)
+prevals_coords =cbind(presence,presvals)
+absence = background@coords
+absvals <- extract(bioclim.data, absence, cellnumber=TRUE)
+absvals_coords =cbind(absence,absvals)
+pb <- c(rep(1, nrow(prevals_coords)), rep(0, nrow(absvals_coords)))
+pa <- data.frame(cbind(pb, rbind(prevals_coords, absvals_coords)))
 
 ## Extract environmental values and cell number for observations
 
@@ -136,7 +185,7 @@ ZIB.env.mcmc <- mcmc.list(lapply(mod.ZIB.env,"[[","mcmc"))
 
 ## Outputs summary
 ZIB.env.stat <- summary(ZIB.env.mcmc)$statistics
-sink(file="results/ZIB.env.corona2_mcmc_summary.txt")
+sink(file="results/ZIB.env.xx_mcmc_summary.txt")
 summary(ZIB.env.mcmc)
 cat(rep("\n",3))
 gelman.diag(ZIB.env.mcmc)
@@ -150,7 +199,7 @@ gamma.hat <- ZIB.env.stat["gamma.(Intercept)","Mean"]
 delta.est <- inv.logit(gamma.hat) 
 delta.est
 ## Plot trace and posterior distributions
-pdf("results/ZIB.env.corona2_mcmc_trace.pdf")
+pdf("results/ZIB.env.xx_mcmc_trace.pdf")
 plot(ZIB.env.mcmc)
 dev.off()
 ## Prediction on the landscape
@@ -158,87 +207,20 @@ prob.p.z <- subset(bioclim.data,1) ## create a raster for predictions
 values(prob.p.z)[w] <- mod.ZIB.env[[1]]$prob.p.pred ## assign predicted values
 values(prob.p.z)[!w] <- NA ## set NA where no environmental data
 ## Plot the predictions
-pdf(file="results/ZIB.env_corona2_predictions.pdf")
+pdf(file="results/ZIB.env_xx_predictions.pdf")
 plot(prob.p.z)
 #plot(pa.norm[pa.norm$pb==0,],pch=".",col=grey(0.5),add=TRUE)
 #plot(pa.norm$pb,pch=3,add=TRUE)
 points(obs.data$x,obs.data$y, pch=3, add=TRUE)
 dev.off()
 ## Export the results as GeoTIFF
-writeRaster(prob.p,filename="results/ZIB_env_pred_mod_nh.tif",overwrite=TRUE)
-
-## Interpretation
-## ==============
-## The detection probability is 0.0208381: ~2.1% of chance of observing a disease emergence if the habitat is suitable.
-## Based on *statistical significance* (95% credible intervals) and *biological relevance*,
-## we excluded the following environmental variables: lc_modi+pop. 
-
-##===================================================================
-##
-## 2. Model with only significant and relevant environmental variables
-##
-##===================================================================
-
-## hSDM model using Zero Inflated Binomial (ZIB)
-mod.ZIB.envsign <- foreach (i=1:nchains, .packages="hSDM") %dopar% {
-  mod <- hSDM.ZIB(presences=pa.norm$Presences,
-                  trials=pa.norm$Trials,
-                  suitability=~layer.1+layer+lc+lc_modi, # envsign covariates
-                  observability=~1,
-                  data=pa.norm,
-                  suitability.pred=env.df.pred.complete,
-                  burnin=5000,
-                  mcmc=5000, thin=5,
-                  beta.start=beta.start[i],
-                  gamma.start=gamma.start[i],
-                  mubeta=0, Vbeta=1.0E6,
-                  mugamma=0, Vgamma=1.0E6,
-                  seed=seed.mcmc[i], verbose=1,
-                  save.p=0)
-  return(mod)
-}
-## Extract list of MCMCs from output
-ZIB.envsign.mcmc <- mcmc.list(lapply(mod.ZIB.envsign,"[[","mcmc"))
-
-## Outputs summary
-ZIB.envsign.stat <- summary(ZIB.envsign.mcmc)$statistics
-sink(file="results/ZIB.envsign_co_mcmc_summary.txt")
-ZIB.envsign.stat
-cat(rep("\n",3))
-gelman.diag(ZIB.envsign.mcmc)
-sink()
-## Deviance
-deviance.ZIB.envsign <- ZIB.envsign.stat["Deviance","Mean"]
-## Plot trace and posterior distributions
-pdf("results/ZIB.envsign_co_mcmc_trace.pdf")
-plot(ZIB.envsign.mcmc)
-dev.off()
-
-## Prediction on the landscape
-prob.p <- subset(bioclim.data,1) ## create a raster for predictions
-values(prob.p)[w] <- mod.ZIB.envsign[[1]]$prob.p.pred ## assign predicted values
-values(prob.p)[!w] <- NA ## set NA where no environmental data
-## Plot the predictions
-pdf(file="results/ZIB.envsign_predictions_co.pdf")
-plot(prob.p)
-dev.off()
-
-## Export the results as GeoTIFF
-writeRaster(prob.p,filename="results/fil_pred_mod_ZIB_envsign.tif",overwrite=TRUE)
-
-
+writeRaster(prob.p,filename="results/ZIB_env_pred_mod_xx.tif",overwrite=TRUE)
 
 ##===============================================
 ##
-## 3. Binomial model  
+## 2. Binomial model  
 ##===============================================
 
-## Landscape and neighbors
-ncells <- ncell(bioclim.data)
-neighbors.mat <- adjacent(bioclim.data, cells=c(1:ncells), directions=8, pairs=TRUE, sorted=TRUE)
-n.neighbors <- as.data.frame(table(as.factor(neighbors.mat[,1])))[,2]
-adj <- neighbors.mat[,2]
-cells.pred <- which(w) ## Vector w indicates the cells with environmental information (without NA)
 
 ## binomial model
 ## hSDM model using Binomial for perfect detection
@@ -265,7 +247,7 @@ summary(binomial.env.mcmc)
 sink()
 ## Outputs summary
 bionomial.env.stat <- summary(binomial.env.mcmc)$statistics
-sink(file="results/binomial_corona2_mcmc_summary.txt")
+sink(file="results/binomial_xx_mcmc_summary.txt")
 summary(binomial.env.mcmc)
 cat(rep("\n",3))
 gelman.diag(binomial.env.mcmc)
@@ -274,7 +256,7 @@ sink()
 deviance.bionomial.env <- bionomial.env.stat["Deviance","Mean"]
 
 ## Plot trace and posterior distributions
-pdf("results/bionomial.env_corona2_mcmc_trace.pdf")
+pdf("results/bionomial.env_xx_mcmc_trace.pdf")
 plot(binomial.env.mcmc)
 dev.off()
 
@@ -283,14 +265,27 @@ prob.p.bi <- subset(bioclim.data,1) ## create a raster for predictions
 values(prob.p.bi)[w] <- mod.binomial[[1]]$theta.pred ## assign predicted values
 values(prob.p.bi)[!w] <- NA ## set NA where no environmental data
 ## Plot the predictions
-pdf(file="results/binomial.env_corona2_predictions.pdf")
+pdf(file="results/binomial.env_xx_predictions.pdf")
 plot(prob.p.bi)
 plot(pa.norm[pa.norm$pb==0,],pch=".",col=grey(0.5),add=TRUE)
 plot(pa.norm[pa.norm$pb>0,],pch=3,add=TRUE)
 dev.off()
 
 ## Export the results as GeoTIFF
-writeRaster(prob.p,filename="results/binomial_pred_mod_nh.tif",overwrite=TRUE)
+writeRaster(prob.p,filename="results/binomial_pred_mod_xx.tif",overwrite=TRUE)
+
+##===============================================
+##
+## 3. Binomial iCAR model  
+##===============================================
+
+
+## Landscape and neighbors
+ncells <- ncell(bioclim.data)
+neighbors.mat <- adjacent(bioclim.data, cells=c(1:ncells), directions=8, pairs=TRUE, sorted=TRUE)
+n.neighbors <- as.data.frame(table(as.factor(neighbors.mat[,1])))[,2]
+adj <- neighbors.mat[,2]
+cells.pred <- which(w) ## Vector w indicates the cells with environmental information (without NA)
 
 ## binomial icar model
 ## hSDM model using Binomial icar for perfect detection
@@ -325,7 +320,7 @@ summary(binomial.icar.mcmc)
 sink()
 ## Outputs summary
 bionomial.icar.stat <- summary(binomial.icar.mcmc)$statistics
-sink(file="results/binomial.icar_corona2_mcmc_summary.txt")
+sink(file="results/binomial.icar_xx_mcmc_summary.txt")
 summary(binomial.icar.mcmc)
 cat(rep("\n",3))
 gelman.diag(binomial.icar.mcmc)
@@ -334,13 +329,13 @@ sink()
 deviance.bionomial.icar <- bionomial.icar.stat["Deviance","Mean"]
 
 ## Plot trace and posterior distributions
-pdf("results/bionomial.icar_corona2_mcmc_trace.pdf")
+pdf("results/bionomial.icar_xx_mcmc_trace.pdf")
 plot(binomial.icar.mcmc)
 dev.off()
 ## Spatial random effects
 rho <- subset(bioclim.data,1) ## create a raster
 values(rho) <- mod.binomial.icar[[1]]$rho.pred
-pdf(file="results/corona2_binomial.iCAR_random_effects.pdf")
+pdf(file="results/xx_binomial.iCAR_random_effects.pdf")
 plot(rho)
 dev.off()
 ## Prediction on the landscape
@@ -348,15 +343,19 @@ prob.p.b <- subset(bioclim.data,1) ## create a raster for predictions
 values(prob.p.b)[w] <- mod.binomial.icar[[1]]$theta.pred ## assign predicted values
 values(prob.p.b)[!w] <- NA ## set NA where no environmental data
 ## Plot the predictions
-pdf(file="results/binomial.icar_corona2_predictions.pdf")
+pdf(file="results/binomial.icar_xx_predictions.pdf")
 plot(prob.p.b)
 plot(pa.norm[pa.norm$pb==0,],pch=".",col=grey(0.5),add=TRUE)
 plot(pa.norm[pa.norm$pb>0,],pch=3,add=TRUE)
 dev.off()
 
 ## Export the results as GeoTIFF
-writeRaster(prob.p.b,filename="results/binomial_icar_pred_mod_corona2.tif",overwrite=TRUE)
+writeRaster(prob.p.b,filename="results/binomial_icar_pred_mod_xx.tif",overwrite=TRUE)
 
+##===============================================
+##
+## 4. ZIB iCAR model  
+##===============================================
 
 ## ZIB.iCAR model
 mod.ZIB.iCAR <- foreach (i=1:nchains, .packages="hSDM") %dopar% {
@@ -402,7 +401,7 @@ sink()
 ## Outputs summary
 ZIB.iCAR.stat <- summary(ZIB.iCAR.mcmc)$statistics
 
-sink(file="results/ZIB_iCAR_corona21_mcmc_summary.txt")
+sink(file="results/ZIB_iCAR_xx_mcmc_summary.txt")
 summary(ZIB.iCAR.mcmc)
 cat(rep("\n",3))
 gelman.diag(ZIB.iCAR.mcmc)
@@ -411,14 +410,14 @@ sink()
 deviance.ZIB.iCAR <- ZIB.iCAR.stat["Deviance","Mean"]
 
 ## Plot trace and posterior distributions
-pdf("results/ZIB_iCAR_co2_mcmc_trace.pdf")
+pdf("results/ZIB_iCAR_xx_mcmc_trace.pdf")
 plot(ZIB.iCAR.mcmc)
 dev.off()
 
 ## Spatial random effects
 rho <- subset(bioclim.data,1) ## create a raster
 values(rho) <- mod.ZIB.iCAR[[1]]$rho.pred
-pdf(file="results/ZIB_iCAR_corona2_random_effects.pdf")
+pdf(file="results/ZIB_iCAR_xx_random_effects.pdf")
 plot(rho)
 dev.off()
 
@@ -428,14 +427,14 @@ prob.p <- subset(bioclim.data,1) ## create a raster for predictions
 values(prob.p)[w] <- mod.ZIB.iCAR[[1]]$prob.p.pred ## assign predicted values
 values(prob.p)[!w] <- NA ## set NA where no environmental data
 ## Plot the predictions
-pdf(file="results/ZIB.iCAR_corona2_predictions.pdf")
+pdf(file="results/ZIB.iCAR_xx_predictions.pdf")
 plot(prob.p,zlim=c(0,1))
 dev.off()
 #= Summary plots
 
 
 ## Export the results as GeoTIFF
-writeRaster(prob.p,filename="results/corona2_pred_mod_ZIB_iCAR.tif",overwrite=TRUE)
+writeRaster(prob.p,filename="results/xx_pred_mod_ZIB_iCAR.tif",overwrite=TRUE)
 
 ##===============================================
 ##
@@ -482,7 +481,7 @@ dev.tab$Model <- c("NULL","env","binomial","binomial.icar", "ZIB.icar")
 dev.tab$Deviance <- c(deviance.null, deviance.ZIB.env,deviance.bionomial.env, deviance.bionomial.icar, deviance.ZIB.iCAR)
 dev.tab$Perc <- round(100*(dev.tab$Deviance[1]-dev.tab$Deviance)/(dev.tab$Deviance[1]-dev.tab$Deviance[5]))
 ##= Export
-sink(file="results/corona2_deviance.txt")
+sink(file="results/xx_deviance.txt")
 dev.tab
 sink()
 
@@ -535,7 +534,7 @@ OA.thresh.maxTSS <- Index.fun(pa$Suit,pa$prob.p,thresh.maxTSS)$OA
 tss.df <- data.frame(masTSS=maxTSS,OA=OA.thresh.maxTSS,prob=thresh.maxTSS)
 
 ## Plot evolution of TSS with threshold
-pdf(file="results/corona2_TSS.pdf")
+pdf(file="results/xx_TSS.pdf")
 plot(thresh.seq,TSS,type="l",xlab=c("probability threshold"),ylab="TSS")
 abline(v=thresh.maxTSS)
 dev.off()
@@ -544,13 +543,13 @@ dev.off()
 SDA <- prob.p
 SDA[SDA>=thresh.maxTSS] <- 1
 SDA[SDA<thresh.maxTSS] <- 0
-pdf(file="results/corona2_SDA.pdf")
+pdf(file="results/xx_SDA.pdf")
 plot(SDA,legend=FALSE)
 dev.off()
 
 ## Export the result
-writeRaster(SDA,filename="results/corona2_SDA.tif",overwrite=TRUE)
-write.table(round(tss.df,2),file="results/corona2_TSS.txt",row.names=FALSE,sep="\t")
+writeRaster(SDA,filename="results/xx_SDA.tif",overwrite=TRUE)
+write.table(round(tss.df,2),file="results/xx_TSS.txt",row.names=FALSE,sep="\t")
 
 ## Estimating SDA area (in km2)
 n.pix <- sum(values(SDA),na.rm=TRUE)
@@ -579,14 +578,13 @@ weight <- dev.tab$Perc
 m2 <- weighted.mean( models, weight)
 plot(m2)
 ## Export the results as GeoTIFF
-writeRaster(m2,filename="results/corona2_weighted_model.tif",overwrite=TRUE)
+writeRaster(m2,filename="results/xx_weighted_model.tif",overwrite=TRUE)
 
 
 ##
 ## Final SDA map with Google Map background (with ggmap::get_map() function)
 ##
 ##==========================================================================
-SDA <-raster("C:/Users/sj20e051/Documents/biogeography/ecohealth/diseasex/results/nipah_hendra/henipa_sda.tif")
 
 ## Reproject in Lat/Long (epsg:4326)
 GM.crs <- CRS("+init=epsg:4326")
@@ -606,13 +604,13 @@ gg.plot <- bg +
 
 #+ coord_cartesian()  coord_equal() 
 ## Save as png image file
-ggsave(filename="corona2_SDA_ggmap.png",plot=gg.plot,device="png",path="results/",width=10,height=7,units="cm",dpi=300)
-ggsave("results/henipa_sda_pred.pdf")
+ggsave(filename="xx_SDA_ggmap.png",plot=gg.plot,device="png",path="results/",width=10,height=7,units="cm",dpi=300)
+ggsave("results/xx_sda_pred.pdf")
 plot(bg)
 plot(SDA.GM, add = T, legend=FALSE, color="red")
 
 t = tm_shape(prob.p) + 
-  tm_raster(style = "fisher", title = "Hotspots for coronaviridae",
+  tm_raster(style = "fisher", title = "Hotspots for xx",
             palette = "YlOrRd",
             legend.hist = FALSE)+
   tm_legend(outside = TRUE)+
@@ -620,23 +618,5 @@ t = tm_shape(prob.p) +
   tm_compass(type="arrow", position= c("LEFT", "BOTTOM"))+
     tm_scale_bar(position =  c("LEFT", "BOTTOM"))
 
-  tmap_save(t, "results/Hotspots for coronaviruses.pdf") # height interpreted in inches
+  tmap_save(t, "results/Hotspots for xx.pdf") # height interpreted in inches
   
-prob.p -> prob.p.coronaviridae
-
-# ## Alternative plot with raster::gmap() function
-# library(rgdal)
-# library(dismo)
-# ## Reproject SDA in Google PseudoMercator (epsg:3857)
-GM.crs <- CRS("+init=epsg:3857")
-SDA.GM <- projectRaster(from=SDA,crs=GM.crs,method="ngb")
-fil.GM <- spTransform(obs.data,GM.crs)
-# ## Plot
-png(file="results/fil_gmap_SDA_gmap.png",height=1000,width=800)
-fil.gmap <- gmap(x=SDA.GM,exp=1,type="terrain",zoom=7,scale=2)
-plot(fil.gmap)
-plot(SDA.GM,add=TRUE,legend=FALSE,alpha=0.35)
-# plot(Gorilla.GM[Gorilla.GM$Presences>0,],pch=3,add=TRUE)
-dev.off()
-
-
